@@ -68,8 +68,9 @@ public class Student
    public void setAttendanceStatus(int status)
    {
     attendances.add(new Attendance(status));
-    if(status == 1)
+    if(status == 1){
         truecount++;
+    }
     totalcount++;
    }
    public void setflag(boolean flag){

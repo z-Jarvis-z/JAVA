@@ -1,5 +1,7 @@
 package STUDENT;
 
+import THETIME.*;
+
 // 定义一个名为Attendance的类，用于记录点名情况
 public class Attendance {
    private AttendanceStatus status;
@@ -18,16 +20,16 @@ public class Attendance {
             this.status = AttendanceStatus.CORRECT;
             break;
          case 2:
-            this.status = AttendanceStatus.CORRECT;
+            this.status = AttendanceStatus.WRONG;
             break;
          case 3:
-            this.status = AttendanceStatus.CORRECT;
+            this.status = AttendanceStatus.ABSENT;
             break;
          case 4:
-            this.status = AttendanceStatus.CORRECT;
+            this.status = AttendanceStatus.LEAVE;
             break;
          case 5:
-            this.status = AttendanceStatus.CORRECT;
+            this.status = AttendanceStatus.OTHER;
             break;        
         default:
             break;

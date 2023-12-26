@@ -1,4 +1,4 @@
-package STUDENT;
+package THETIME;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
