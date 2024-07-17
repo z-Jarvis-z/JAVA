@@ -1,6 +1,8 @@
 package com.wh.bank.service;
 
+import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,9 +15,15 @@ import com.wh.bank.exception.APIexception;
 import com.wh.bank.mapper.AccountMapper;
 import com.wh.bank.mapper.DepositMapper;
 import com.wh.bank.mapper.TradeInfoMapper;
+import com.wh.bank.utils.DateTools;
+import com.wh.bank.vo.DepositVo;
 import com.wh.bank.vo.TradeVo;
 
+import lombok.extern.slf4j.Slf4j;
+
+
 @Service
+@Slf4j
 public class DepositService {
 
     @Autowired
@@ -50,8 +58,8 @@ public class DepositService {
             throw new APIexception("余额不足");
         }
 
-        depositMapper.subDepositMoney(tradeVo.getFromAccountId(), tradeVo.getToAccountId(),tradeVo.getMoney());
-        depositMapper.addDepositMoney(tradeVo.getFromAccountId(), tradeVo.getToAccountId(),tradeVo.getMoney());
+        depositMapper.subDepositMoney(tradeVo.getFromAccountId(),tradeVo.getMoney());
+        depositMapper.addDepositMoney(tradeVo.getToAccountId(),tradeVo.getMoney());
 
         TradeInfo tradeInfo = new TradeInfo();
         tradeInfo.setTradeType("同行转账");
@@ -63,4 +71,82 @@ public class DepositService {
         tradeInfoMapper.insert(tradeInfo);
     }
 
+    public Integer getProperty(String accountId) {
+        if(depositMapper.getDepositByAccountId(accountId) == null)
+        {
+            throw new APIexception("找不到id");
+        }
+        return depositMapper.getDepositByAccountId(accountId).getRemaining();
+    }
+
+    @Transactional
+    public void addDeadProperty(DepositVo depositVo) {
+        if(accountMapper.selectById(depositVo.getAccountId()) == null)
+        {
+            throw new APIexception("账号不存在");
+        }
+
+        if (getProperty(depositVo.getAccountId()) < depositVo.getRemaining()) {
+            throw new APIexception("余额不足");
+        }
+
+        if (depositVo.getDepositType().equals("活期"))
+        {
+            throw new APIexception("大哥这个函数是存死期的，你调用错了");
+        }
+
+        Deposit deposit = new Deposit();
+        deposit.setAccountId(depositVo.getAccountId());
+
+        depositMapper.subDepositMoney(depositVo.getAccountId(), depositVo.getRemaining());
+        deposit.setRemaining(depositVo.getRemaining());
+
+        deposit.setDelFlag(0);
+        deposit.setDepositType("死期");
+        deposit.setInterestRate(new BigDecimal(0.004));
+        deposit.setDepositTime( new Date());
+        deposit.setExpireTime(DateTools.getYearTime(depositVo.getYears()));
+        deposit.setRemark(depositVo.getRemark());
+        depositMapper.insert(deposit);
+
+    }
+    public List<Deposit> getDeadProperty(String accountId)
+    {
+        return depositMapper.getDeposit_deadByAccountId(accountId);
+    }
+
+    public Integer getDeadSum(String accountId)
+    {
+        return depositMapper.getdeadPropertyByAccountId(accountId);
+    }
+
+    @Transactional
+    public void resurrect(String accountId,String password ,Integer depositId)
+    {
+        Account account = accountMapper.selectById(accountId);
+        if(account == null)
+        {
+            throw new APIexception("账号不存在");
+        }
+        if(!account.getPassword().equals(password))
+        {
+            throw new APIexception("密码错误");
+        }
+        Deposit deposit = depositMapper.selectById(depositId);
+        if(deposit == null)
+        {
+            throw new APIexception("存款不存在");
+        }
+        if(deposit.getDelFlag() != 0)
+        {
+            throw new APIexception("存款已删除");
+        }
+        if(deposit.getDepositType().equals("活期"))
+        {
+            throw new APIexception("活期存款不能恢复");
+        }
+        depositMapper.addDepositMoney(accountId,deposit.getRemaining());
+        depositMapper.delDeposit_deadByDepoitId(depositId);
+
+    }
 }

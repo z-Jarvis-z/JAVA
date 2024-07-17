@@ -8,12 +8,15 @@ import com.wh.bank.entity.Account;
 import com.wh.bank.entity.Employee;
 import com.wh.bank.mapper.AccountMapper;
 import com.wh.bank.mapper.EmployeeMapper;
+import com.wh.bank.vo.DepositVo;
+
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.swing.*;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 @SpringBootTest
@@ -108,7 +111,12 @@ class BankApplicationTests {
            System.out.println(account); 
        }
     }
-
+    @Test
+    void test09(){
+        DepositVo depositVo=new DepositVo();
+        depositVo.setAccountId("3231456");
+        depositVo.setDepositTime(new Date());
+    }
 
 
 }

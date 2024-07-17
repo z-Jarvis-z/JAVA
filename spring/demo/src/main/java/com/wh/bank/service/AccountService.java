@@ -41,6 +41,10 @@ public class AccountService {
     @Transactional
     public void registAccount(AccountVo accountVo)
     {
+        if(accountMapper.selectById(accountVo.getAccountId())!= null)
+        {
+            throw new APIexception("账号已存在");
+        }
         Account account = new Account();
         account.setAccountId(accountVo.getAccountId());
         account.setPassword(accountVo.getPassword());

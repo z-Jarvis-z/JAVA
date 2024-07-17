@@ -1,9 +1,13 @@
 package com.wh.bank.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -34,4 +38,23 @@ public class TradeInfoController {
         log.info("查询成功");
         return Result.ok("查询成攻", tradeInfoPage);
     }
+
+    @PostMapping("/tradesto")
+    public Result TradetoContact(@RequestParam("accountId") String accountId)
+    {
+        List<String> list = tradeInfoService.TradetoContact(accountId);
+        
+
+        return Result.ok("查询成功",list);
+    }
+    @PostMapping("/tradesfrom")
+    public Result TradefromContact(@RequestParam("accountId") String accountId)
+    {
+        
+        List<String> list = tradeInfoService.TradefromContact(accountId);
+
+
+        return Result.ok("查询成功",list);
+    }
+
 }
